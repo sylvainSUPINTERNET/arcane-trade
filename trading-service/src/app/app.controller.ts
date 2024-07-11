@@ -11,7 +11,5 @@ export class AppController {
   getData() {
     console.log(this.commonLibService.getHello());
     return this.appService.getData();
-  }
-
-  
+  }  
 }
