@@ -6,10 +6,33 @@
 
 npx nx g @nx/next:app my-new-app
 
+npx nx g @nx/nest:app my-nest-app
+
+
 npx nx serve trading-service
 
 
 ````
+
+
+add lib
+
+```` typescript
+
+// index.ts ( of the lib )
+export * from './lib/common-lib.module';
+export * from './lib/common-lib.service';
+
+````
+
+
+``` bash
+# tsconfig.base.json
+
+    "paths": {
+      "@arcane-trade/common-lib": ["common-lib/src/index.ts"]
+    }
+```
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 

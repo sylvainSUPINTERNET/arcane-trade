@@ -1,0 +1,24 @@
+{
+  "name": "kermes",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "kermes/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "kermes:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "kermes:build:development"
+        },
+        "production": {
+          "buildTarget": "kermes:build:production"
+        }
+      }
+    }
+  }
+}
