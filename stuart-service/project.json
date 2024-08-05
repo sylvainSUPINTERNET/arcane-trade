@@ -1,0 +1,24 @@
+{
+  "name": "stuart-service",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "stuart-service/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "stuart-service:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "stuart-service:build:development"
+        },
+        "production": {
+          "buildTarget": "stuart-service:build:production"
+        }
+      }
+    }
+  }
+}
