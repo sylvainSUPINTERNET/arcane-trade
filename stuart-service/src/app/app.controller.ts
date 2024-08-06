@@ -1,7 +1,11 @@
 import { Controller, Get, Inject } from '@nestjs/common';
 
 import { AppService } from './app.service';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
+
+interface payloadWebhookPaymentStripeSucceed {
+  data: string
+}
 
 @Controller()
 export class AppController {
@@ -12,12 +16,15 @@ export class AppController {
     return "hello";
   }
 
-  @Get("emit")
-  emit() {
-    console.log("EMIT");
-    this.client.emit("notifications", "world");
-    return "emitted";
+
+  
+  @MessagePattern('webhook_payment_stripe_succeed')
+  getNotification(@Payload() msg:payloadWebhookPaymentStripeSucceed, @Ctx() ctx: RedisContext) {
+    console.log(ctx);
+    console.log(`STRIPE SERVICE : received notification from : ${msg.data}`);
+    return msg.data;
   }
+
 
   
 }

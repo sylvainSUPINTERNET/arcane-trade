@@ -7,9 +7,10 @@ import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
 
+export const globalPrefix = 'api';
+
 async function bootstrap() {
   const port = process.env.PORT || 4999;
-  const globalPrefix = 'api';
 
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix(globalPrefix);
