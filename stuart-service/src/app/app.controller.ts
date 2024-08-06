@@ -1,7 +1,8 @@
-import { Controller, Inject, Logger } from '@nestjs/common';
-
+import { Controller, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
+import { v7 as uuidv7 } from 'uuid';
 
 import {
   Authenticator,
@@ -39,6 +40,14 @@ export class AppController {
   ) {}
 
 
+
+  @Post("webhook")
+  stuartWebhook( @Req() req: Request, @Res() res: Response ) {
+    console.log("hook", req.body);
+    res.status(HttpStatus.OK).json({
+      "status": "received webhook event from stripe"
+    });
+  }
   
   @MessagePattern('webhook_payment_stripe_succeed')
   getNotification( @Payload() msg:payloadWebhookPaymentStripeSucceed, @Ctx() ctx: RedisContext ) {
@@ -75,7 +84,7 @@ export class AppController {
           {
             address: "156 rue de Charonne, 75011 Paris",
             package_description: "Red packet.",
-            client_reference: "12345678ABCDE", // must be unique
+            client_reference: uuidv7(), // must be unique
             comment: "code: 3492B. 3e étage droite. Sonner à Durand.",
             contact: {
               firstname: "Alex",
@@ -96,7 +105,7 @@ export class AppController {
     .then((apiResponse) => { console.log(apiResponse) })
     .catch((error) => { console.log(error) })
 
-    
+
     return msg.data;
   }
 
