@@ -6,14 +6,28 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import bodyParser from 'body-parser';
+import { Request, Response } from 'express';
 
 export const globalPrefix = 'api';
 
 async function bootstrap() {
   const port = process.env.PORT || 4999;
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: true
+  });
   app.setGlobalPrefix(globalPrefix);
+
+  app.use(bodyParser.json({
+    verify: function (req:Request, res:Response, buf) {
+      var url = req.originalUrl;
+      if (url.startsWith('/api/webhook')) {
+        req["rawBody"] = buf.toString();
+      }
+    }
+  }));
 
   const microserviceRedis = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,

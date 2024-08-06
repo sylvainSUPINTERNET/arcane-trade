@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
-import { RawBodyMiddleware } from './middlewares/rawBody.middleware';
 import { globalPrefix } from '../main';
 
 @Module({
@@ -26,10 +25,4 @@ import { globalPrefix } from '../main';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(RawBodyMiddleware)
-      .forRoutes({ path: `${globalPrefix}/webhook`, method: RequestMethod.POST });
-  }
-}
+export class AppModule {  }

@@ -11,7 +11,9 @@ async function bootstrap() {
   const port = process.env.PORT || 5999;
   const globalPrefix = 'api';
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: true
+  });
   app.setGlobalPrefix(globalPrefix);
 
   const microserviceRedis = app.connectMicroservice<MicroserviceOptions>({
