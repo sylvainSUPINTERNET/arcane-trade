@@ -41,11 +41,10 @@ export class AppController {
           });
           
           Logger.log(`STRIPE_SERVICE send payment_intent ${event.data.object.id} to STUART_SERVICE`);
-
           break;
 
-        default:
-          Logger.log(`Unhandled event type ${event.type} ( ignored )`);
+        // default:
+        //   Logger.debug(`Unhandled event type ${event.type} ( ignored )`);
       }
 
 
@@ -55,7 +54,8 @@ export class AppController {
 
     } catch (err) {
 
-      console.log("Stripe event webhook error : " + err.message);
+      Logger.error("Stripe event webhook error : " + err.message);
+
       res.status(HttpStatus.BAD_REQUEST).json({
         "error": `Webhook Error: ${err.message}`
       });
