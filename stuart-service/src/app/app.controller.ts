@@ -14,7 +14,8 @@ export class AppController {
 
   @Get("emit")
   emit() {
-    this.client.emit("hello", "world");
+    console.log("EMIT");
+    this.client.emit("notifications", "world");
     return "emitted";
   }
 

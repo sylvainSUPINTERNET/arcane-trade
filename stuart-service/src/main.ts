@@ -2,17 +2,17 @@
  * This is not a production server yet!
  * This is only a minimal backend to get started.
  */
-
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5999;
+  const globalPrefix = 'api';
 
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(globalPrefix);
 
   const microserviceRedis = app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,
@@ -27,12 +27,10 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT || 3000, () => {
-    Logger.log(`Stuart microservice is listening on ${port}`);
+  await app.listen(port, () => {
+    Logger.log( `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
   });
 
 }
 
 bootstrap();
-
-
