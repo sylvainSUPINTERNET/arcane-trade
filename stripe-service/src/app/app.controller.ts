@@ -27,20 +27,21 @@ export class AppController {
 
       switch (event.type) {
 
-        case 'payment_intent.succeeded':
+        case 'payment_intent.succeeded': // in "manual" payment mode, this means "authorized with success" and we need to confirm the payment manually ( in dashboard for example )
+          const { id,shipping, amount, amount_received } = event.data.object;
 
-          const { id, shipping } = event.data.object;
 
-
-          this.client.emit("webhook_payment_stripe_succeed", {
+          this.client.emit("stripe_payment_intent_confirm_request", {
             data: {
               paymentIntentId: id, 
-              shipping
+              shipping,
+              amount,
+              amount_received
             },
             service: STRIPE_SERVICE
           });
           
-          Logger.log(`STRIPE_SERVICE send payment_intent ${event.data.object.id} to STUART_SERVICE`);
+          Logger.log(`STRIPE_SERVICE send to topic [stripe_payment_intent_confirm_request] ${event.data.object.id} to TELEGRAM_SERVICE`);
           break;
 
         // default:
@@ -63,19 +64,4 @@ export class AppController {
     }
   }
 
-
-  @Get("emit") // /api/emit
-  emit() {
-    this.client.emit("webhook_payment_stripe_succeed", {
-      data: "PAYMENT SUCCEED !",
-      service: STRIPE_SERVICE
-    });
-    console.log("STRIPE_SERVICE : emitted notification to STUART_SERVICE");
-    return "emitted";
-  }
-
-  @Get()
-  getData() {
-    return this.appService.getData();
-  }
 }

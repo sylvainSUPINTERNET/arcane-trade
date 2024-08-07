@@ -14,7 +14,7 @@ import { ConfigModule } from '@nestjs/config';
         transport: Transport.REDIS,
         options: {
           host: process.env.REDIS_HOST,
-          port: 6379,
+          port: process.env.REDIS_PORT as unknown as number,
           password: process.env.REDIS_PASSWORD,
           tls: {},
         },
