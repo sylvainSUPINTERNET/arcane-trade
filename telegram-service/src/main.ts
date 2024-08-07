@@ -9,31 +9,24 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 
 import axios from "axios";
-
 import https from 'https'
 
 
 
-  // Init webhook & get chatId
+  // Init webhook
 const bootstrapBotTelegram = async () => {
-
-  const httpsAgent  = new https.Agent({
-    rejectUnauthorized: process.env.AXIOS_REJECT_UNAUTHORIZED as unknown as boolean  || true// (NOTE: this will disable client verification) => use it in dev only
-  });
 
   const telegramBotToken = process.env.TELEGRAM_BOT_ACCESS_TOKEN as string;
 
   try {
+    // const response = await axios.get(`https://api.telegram.org/bot${telegramBotToken}/getUpdates`);
+    // console.log(response.data.result[0].message.chat.id);
+    
+    const resp = await axios.post(`https://api.telegram.org/bot${telegramBotToken}/setWebhook?secret_token=${process.env.TELEGRAM_SECRET_TOKEN_WEBHOOK as string}`, {
+      url: `${process.env.TELEGRAM_FORWARD_URL_WEBHOOK as string}`
+    });
 
-    const response = await axios.get(`https://api.telegram.org/bot${telegramBotToken}/getUpdates`, {httpsAgent});
-
-    console.log("TELEGRAM : ", response);
-
-    response.data.result.forEach( update => {
-      const chatId = update.message.chat.id;
-      console.log("chatId detected : ", chatId);
-    })
-
+    Logger.log("Telegram webhook : ", resp.data, "TELEGRAM_FORWARD_URL_WEBHOOK : ", process.env.TELEGRAM_FORWARD_URL_WEBHOOK);
 
   } catch ( e ) {
     console.log("Error while bootstrap bot telegram : ", e);
