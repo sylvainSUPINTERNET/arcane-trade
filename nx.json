@@ -40,7 +40,8 @@
         "trading-service-e2e/**/*",
         "kermes-e2e/**/*",
         "stuart-service-e2e/**/*",
-        "stripe-service-e2e/**/*"
+        "stripe-service-e2e/**/*",
+        "telegram-service-e2e/**/*"
       ]
     }
   ]
