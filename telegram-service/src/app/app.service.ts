@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios from "axios";
 import { IPaymentIntentConfirmRequestPayload } from './app.controller';
-
-
+import { CommonLibService } from '@arcane-trade/common-lib';
 
 
 @Injectable()
 export class AppService {
+  
+  constructor () { }
 
   async sendMessagePaymentIntentConfirm( payload:IPaymentIntentConfirmRequestPayload ) {
     
