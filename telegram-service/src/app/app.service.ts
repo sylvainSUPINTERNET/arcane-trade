@@ -7,7 +7,12 @@ import { CommonLibService } from '@arcane-trade/common-lib';
 @Injectable()
 export class AppService {
   
-  constructor () { }
+  constructor (private readonly commonLibService: CommonLibService ) { }
+
+
+  async saveResponse() {
+    this.commonLibService.getHello();
+  }
 
   async sendMessagePaymentIntentConfirm( payload:IPaymentIntentConfirmRequestPayload ) {
     

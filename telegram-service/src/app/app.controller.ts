@@ -2,6 +2,7 @@ import { Controller, Get, HttpStatus, Logger, Post, Req, Res} from '@nestjs/comm
 import axios from "axios";
 import { AppService } from './app.service';
 import { Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
+import { CommonLibService } from '@arcane-trade/common-lib';
 
 
 export interface IPaymentIntentConfirmRequestPayload {
@@ -28,7 +29,7 @@ export interface IPaymentIntentConfirmRequestPayload {
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService, private readonly dbService: CommonLibService) {}
 
   // We get event on stripe webhook, payment is "manual" so we need to confirm once the payment is successful
   @MessagePattern('stripe_payment_intent_confirm_request')
@@ -51,6 +52,8 @@ export class AppController {
         const response = req.body.callback_query.data.split("@")[0];
         const paymentId = req.body.callback_query.data.split("@")[1];
 
+        console.log("response : ", paymentId);
+
         if (  response === "yes" ) {
           Logger.log(`callback_query : YES -> Payment intent confirmed ${paymentId}`);
           // TODO : confirm payment intent ( must send to "manual" the payment mode in Stripe )
@@ -58,13 +61,22 @@ export class AppController {
           // TODO : bot send confirm msg to chat
           // ADD : to redis or somewhere, so when we clik on yes and after "no" it does nothing !
 
-          await this.appService.sendMessagePaymentIntentResponse("Confirmed", paymentId);
+
+          if ( await this.dbService.getDecisionHistory(paymentId) === null ) {
+            await this.appService.sendMessagePaymentIntentResponse("Confirmed", paymentId);
+            await this.dbService.saveDicisionHistory("Confirmed", paymentId);
+          }
+          
 
         } else if ( response === "no" ) {
           Logger.log(`callback_query : NO -> Payment intent cancel ${paymentId}`);
           // TODO : cancel payment
           // TODO : notify user payment intent has been cancel
-          await this.appService.sendMessagePaymentIntentResponse("Cancel", paymentId);
+
+          if ( await this.dbService.getDecisionHistory(paymentId) === null ) {
+            await this.appService.sendMessagePaymentIntentResponse("Cancel", paymentId);
+            await this.dbService.saveDicisionHistory("Cancel", paymentId);
+          }
 
         } else {
           Logger.error("Unknown callback query data : ", req.body.callback_query);
