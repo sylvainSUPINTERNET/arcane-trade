@@ -1,7 +1,7 @@
-import { Controller, Get, HttpStatus, Logger, Post, Req, Res} from '@nestjs/common';
+import { Controller, Get, HttpStatus, Inject, Logger, Post, Req, Res} from '@nestjs/common';
 import axios from "axios";
 import { AppService } from './app.service';
-import { Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
+import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
 import { CommonLibService } from '@arcane-trade/common-lib';
 
 
@@ -29,7 +29,10 @@ export interface IPaymentIntentConfirmRequestPayload {
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService, private readonly dbService: CommonLibService) {}
+  constructor(
+    private readonly appService: AppService, 
+    private readonly dbService: CommonLibService,
+    @Inject('REDIS_CLIENT') private readonly client: ClientProxy) {}
 
   // We get event on stripe webhook, payment is "manual" so we need to confirm once the payment is successful
   @MessagePattern('stripe_payment_intent_confirm_request')
@@ -65,6 +68,8 @@ export class AppController {
           if ( await this.dbService.getDecisionHistory(paymentId) === null ) {
             await this.appService.sendMessagePaymentIntentResponse("Confirmed", paymentId);
             await this.dbService.saveDicisionHistory("Confirmed", paymentId);
+
+            this.client.emit('stuart_create_job', { paymentIntentId: paymentId });
           }
           
 

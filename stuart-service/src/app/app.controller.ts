@@ -3,6 +3,9 @@ import { Request, Response } from 'express';
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
 import { v7 as uuidv7 } from 'uuid';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_KEY_SECRET);
 
 import {
   Authenticator,
@@ -20,7 +23,16 @@ export class AppController {
     @Inject('REDIS_CLIENT') private readonly client: ClientProxy
   ) {}
 
+  @MessagePattern('stuart_create_job')
+  async createJob( @Payload() msg:{paymentIntentId:string}, @Ctx() ctx: RedisContext ) {
+    Logger.log(`STUART_SERVICE : received create job from TELEGRAM_SERVICE`, msg.paymentIntentId);
+    // await stripe.paymentIntents.confirm(msg.paymentIntentId); // TODO manual
+    const paymentData:Stripe.PaymentIntent  = await stripe.paymentIntents.retrieve(msg.paymentIntentId);
+    console.log(paymentData.shipping);
 
+    await this.appService.createNewJob(paymentData);
+
+  }
 
   @Post("webhook")
   stuartWebhook( @Req() req: Request, @Res() res: Response ) {
