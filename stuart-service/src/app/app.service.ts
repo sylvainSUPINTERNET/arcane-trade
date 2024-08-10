@@ -66,7 +66,11 @@ export class AppService {
     }
     
     httpClient.performPost('/v2/jobs', JSON.stringify(job))
-    .then((apiResponse) => { console.log("JOB ", apiResponse.body, apiResponse.body.deliveries[0].tracking_url) })
+    .then((apiResponse) => { 
+      const { body } = apiResponse
+      console.log("JOB ", apiResponse.body, apiResponse.body.deliveries[0].tracking_url)
+      this.client.emit('stuart_job_tracking_link', { tracking_url: body.deliveries[0].tracking_url , paymentIntentId: paymentIntentData.id})
+     })
     .catch((error) => { console.log(error) })
     
     // httpClient.performGet('/v2/jobs')

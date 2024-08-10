@@ -42,6 +42,13 @@ export class AppController {
     await this.appService.sendMessagePaymentIntentConfirm(msg);
   }
 
+  @MessagePattern('stuart_job_tracking_link')
+  async sendJobTrackingLink( @Payload() msg:{tracking_url:string, paymentIntentId: string}, @Ctx() ctx: RedisContext ) {
+    Logger.log(`TELEGRAM_SERVICE : received stuart_job_tracking_link`, msg.tracking_url);
+    // Send the tracking link to the user
+    await this.appService.sendMessageJobTrackingLink(msg);
+  }
+
   @Post("webhook")
   async webhook(@Req() req, @Res() res) {
 

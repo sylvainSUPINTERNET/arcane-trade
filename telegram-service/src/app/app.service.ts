@@ -58,4 +58,19 @@ export class AppService {
     }
   }
 
+  async sendMessageJobTrackingLink(msg: {tracking_url: string, paymentIntentId: string}) {
+    const telegramBotToken =  process.env.TELEGRAM_BOT_ACCESS_TOKEN as string;
+    const chat_id = process.env.TELEGRAM_CHAT_ID as string;
+    const text = `Tracking for :  ${msg.paymentIntentId} - ${msg.tracking_url}`;
+    try {
+      const response = await axios.post(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+        chat_id,
+        text
+      });
+      //Logger.log('Message sent:', response.data);      
+    } catch (error) {
+      Logger.error('Error sending message:', error);
+    }
+  }
+
 }
