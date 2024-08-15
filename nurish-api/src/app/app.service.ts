@@ -8,7 +8,7 @@ export class AppService {
     const stripe = new Stripe(process.env.STRIPE_KEY_SECRET as string)
 
     const data = await stripe.products.list({
-      expand: ['data.prices']
+      expand: ['data.default_price']
     })
 
     return data;
