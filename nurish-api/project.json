@@ -1,0 +1,24 @@
+{
+  "name": "nurish-api",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "nurish-api/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "nurish-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nurish-api:build:development"
+        },
+        "production": {
+          "buildTarget": "nurish-api:build:production"
+        }
+      }
+    }
+  }
+}
