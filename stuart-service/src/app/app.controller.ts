@@ -24,13 +24,130 @@ export class AppController {
   ) {}
 
   @MessagePattern('stuart_create_job')
-  async createJob( @Payload() msg:{paymentIntentId:string}, @Ctx() ctx: RedisContext ) {
-    Logger.log(`STUART_SERVICE : received create job from TELEGRAM_SERVICE`, msg.paymentIntentId);
-    // await stripe.paymentIntents.confirm(msg.paymentIntentId); // TODO manual
-    const paymentData:Stripe.PaymentIntent  = await stripe.paymentIntents.retrieve(msg.paymentIntentId);
-    console.log(paymentData.shipping);
+  async createJob( @Payload() msg:{sessionId:string}, @Ctx() ctx: RedisContext ) {
+    Logger.log(`STUART_SERVICE : received create job from TELEGRAM_SERVICE`, msg.sessionId);
 
-    await this.appService.createNewJob(paymentData);
+    const sessionData:Stripe.Checkout.Session = await stripe.checkout.sessions.retrieve(msg.sessionId);
+    console.log("session infos : ", sessionData);
+    const paymentData:Stripe.PaymentIntent  = await stripe.paymentIntents.retrieve(sessionData.payment_intent as string);
+    console.log("paymentIntent infos : ", paymentData.shipping);
+
+
+    // send SMS
+    const accountSid = process.env.TWILIO_ACCOUNT_SID as string;
+    const authToken = process.env.TWILIO_AUTH_TOKEN as string;
+    const client = require('twilio')(accountSid, authToken);
+    client.messages
+        .create({
+            body: 'Hello mf',
+            messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE as string,
+            to: `${sessionData.customer_details.phone}`
+        })
+        .then(message => console.log(message.sid));
+
+    await this.appService.createNewJob(paymentData, sessionData);
+
+
+    /*
+
+    session infos :  {
+  id: 'cs_test_a1H2j3mLclXJL45Bn2EaRqQggMiaykemXEzyundNy5p0wE3cOcqGzRc7bq',
+  object: 'checkout.session',
+  after_expiration: null,
+  allow_promotion_codes: null,
+  amount_subtotal: 3000,
+  amount_total: 3000,
+  automatic_tax: { enabled: false, liability: null, status: null },
+  billing_address_collection: null,
+  cancel_url: 'https://httpbin.org/post',
+  client_reference_id: null,
+  client_secret: null,
+  consent: null,
+  consent_collection: null,
+  created: 1724710536,
+  currency: 'usd',
+  currency_conversion: null,
+  custom_fields: [],
+  custom_text: {
+    after_submit: null,
+    shipping_address: null,
+    submit: null,
+    terms_of_service_acceptance: null
+  },
+  customer: null,
+  customer_creation: 'if_required',
+  customer_details: {
+    address: {
+      city: 'South San Francisco',
+      country: 'US',
+      line1: '354 Oyster Point Blvd',
+      line2: null,
+      postal_code: '94080',
+      state: 'CA'
+    },
+    email: 'stripe@example.com',
+    name: 'Jenny Rosen',
+    phone: null,
+    tax_exempt: 'none',
+    tax_ids: []
+  },
+  customer_email: null,
+  expires_at: 1724796936,
+  invoice: null,
+  invoice_creation: {
+    enabled: false,
+    invoice_data: {
+      account_tax_ids: null,
+      custom_fields: null,
+      description: null,
+      footer: null,
+      issuer: null,
+      metadata: {},
+      rendering_options: null
+    }
+  },
+  livemode: false,
+  locale: null,
+  metadata: {},
+  mode: 'payment',
+  payment_intent: 'pi_3PsBCHHuZqrzwWhv0c7KBWMo',
+  payment_link: null,
+  payment_method_collection: 'if_required',
+  payment_method_configuration_details: null,
+  payment_method_options: { card: { request_three_d_secure: 'automatic' } },
+  payment_method_types: [ 'card' ],
+  payment_status: 'paid',
+  phone_number_collection: { enabled: false },
+  recovered_from: null,
+  saved_payment_method_options: null,
+  setup_intent: null,
+  shipping_address_collection: null,
+  shipping_cost: null,
+  shipping_details: null,
+  shipping_options: [],
+  status: 'complete',
+  submit_type: null,
+  subscription: null,
+  success_url: 'https://httpbin.org/post',
+  total_details: { amount_discount: 0, amount_shipping: 0, amount_tax: 0 },
+  ui_mode: 'hosted',
+  url: null
+}
+paymentIntent infos :  {
+  address: {
+    city: 'San Francisco',
+    country: 'US',
+    line1: '510 Townsend St',
+    line2: null,
+    postal_code: '94103',
+    state: 'CA'
+  },
+  carrier: null,
+  name: 'Jenny Rosen',
+  phone: null,
+  tracking_number: null
+}
+  */
 
   }
 

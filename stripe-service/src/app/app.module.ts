@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
+import { CommonLibModule } from '@arcane-trade/common-lib';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { ConfigModule } from '@nestjs/config';
         },
       },
     ]),
+    CommonLibModule
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {  }
+export class AppModule {}

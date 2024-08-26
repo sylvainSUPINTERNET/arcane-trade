@@ -18,7 +18,7 @@ export class AppService {
   constructor(@Inject('REDIS_CLIENT') private readonly client: ClientProxy) { }
 
 
-  async createNewJob(paymentIntentData: Stripe.PaymentIntent){
+  async createNewJob(paymentIntentData: Stripe.PaymentIntent, sessionData: Stripe.Checkout.Session) {
 
     let environment;
     if ( process.env.STUART_ENV === 'production' ) {
@@ -69,7 +69,7 @@ export class AppService {
     .then((apiResponse) => { 
       const { body } = apiResponse
       console.log("JOB ", apiResponse.body, apiResponse.body.deliveries[0].tracking_url)
-      this.client.emit('stuart_job_tracking_link', { tracking_url: body.deliveries[0].tracking_url , paymentIntentId: paymentIntentData.id})
+      this.client.emit('stuart_job_tracking_link', { tracking_url: body.deliveries[0].tracking_url , paymentIntentId: paymentIntentData.id, sessionId: sessionData.id })
      })
     .catch((error) => { console.log(error) })
     

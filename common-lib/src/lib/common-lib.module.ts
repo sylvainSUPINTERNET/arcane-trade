@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Topping, ToppingSchema } from './schemas/topping.schema';
 import { TelegramDecisionHistory, TelegramDecisionHistorySchema } from './schemas/telegramDecisionHistory.schema';
+import { MappingSesionIdStripe, MappingSesionIdStripeSchema } from './schemas/mappingSessionIdStripe.schema';
 
 
 @Module({
@@ -12,9 +13,10 @@ import { TelegramDecisionHistory, TelegramDecisionHistorySchema } from './schema
     MongooseModule.forRoot(process.env["MONGODB_URL"] as string),
     MongooseModule.forFeature([{ name: Topping.name, schema: ToppingSchema }]),
     MongooseModule.forFeature([{ name: TelegramDecisionHistory.name, schema: TelegramDecisionHistorySchema }]),
+    MongooseModule.forFeature([{ name: MappingSesionIdStripe.name, schema: MappingSesionIdStripeSchema }]),
   ],
   controllers: [],
-  providers: [CommonLibService, ],
+  providers: [CommonLibService],
   exports: [CommonLibService, MongooseModule],
 })
 
