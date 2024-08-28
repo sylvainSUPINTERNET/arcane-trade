@@ -53,15 +53,15 @@ export class AppService {
         ],
         dropoffs: [
           {
-            address: "156 rue de Charonne, 75011 Paris",
+            address: `${paymentIntentData.shipping.address!.line1}, ${paymentIntentData.shipping.address!.postal_code} ${paymentIntentData.shipping.address!.city}`, // "156 rue de Charonne, 75011 Paris"
             package_description: "Nurish box",
             client_reference: uuidv7(), // must be unique
-            comment: `Call for ${"x"}`,
+            comment: `Call for ${sessionData.customer_details.phone}`,
             contact: {
-              firstname: ``,
-              lastname: "Durand",
-              phone: "+33634981209",
-              company: "Durand associates."
+              firstname: `${sessionData.customer_details.name}`, // can't make diff between firstname / lastname with stripe !
+              lastname: `${sessionData.customer_details.name}`, // so we take full name no choice ..
+              phone: `${sessionData.customer_details.phone}`,
+              company: `${sessionData.customer_details.name}`
             }
           }
         ]
@@ -79,7 +79,7 @@ export class AppService {
       const client = require('twilio')(accountSid, authToken);
       client.messages
           .create({
-              body: `Commande en cours de préparation, suivez votre livraison: ${apiResponse.body.deliveries[0].tracking_url}`,
+              body: `Commande en cours de préparation, suivez votre livraison : ${apiResponse.body.deliveries[0].tracking_url}`,
               messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE as string,
               to: `${sessionData.customer_details.phone}`
           })
