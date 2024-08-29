@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Topping, ToppingSchema } from './schemas/topping.schema';
 import { TelegramDecisionHistory, TelegramDecisionHistorySchema } from './schemas/telegramDecisionHistory.schema';
 import { MappingSesionIdStripe, MappingSesionIdStripeSchema } from './schemas/mappingSessionIdStripe.schema';
+import { Customer, CustomerSchema } from './schemas/customer.schema';
 
 
 @Module({
@@ -14,6 +15,7 @@ import { MappingSesionIdStripe, MappingSesionIdStripeSchema } from './schemas/ma
     MongooseModule.forFeature([{ name: Topping.name, schema: ToppingSchema }]),
     MongooseModule.forFeature([{ name: TelegramDecisionHistory.name, schema: TelegramDecisionHistorySchema }]),
     MongooseModule.forFeature([{ name: MappingSesionIdStripe.name, schema: MappingSesionIdStripeSchema }]),
+    MongooseModule.forFeature([{ name: Customer.name, schema: CustomerSchema }]),
   ],
   controllers: [],
   providers: [CommonLibService],

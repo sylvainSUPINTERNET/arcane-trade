@@ -3,6 +3,7 @@ import axios from "axios";
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
 import { CommonLibService } from '@arcane-trade/common-lib';
+import Stripe from 'stripe';
 
 
 /*
@@ -84,6 +85,9 @@ export interface IPaymentIntentConfirmRequestPayload {
 }
 
 
+const stripe = new Stripe(process.env.STRIPE_KEY_SECRET);
+
+
 @Controller()
 export class AppController {
   constructor(
@@ -91,6 +95,8 @@ export class AppController {
     private readonly dbService: CommonLibService,
     @Inject('REDIS_CLIENT') private readonly client: ClientProxy) {}
 
+
+    
   // We get event on stripe webhook, payment is "manual" so we need to confirm once the payment is successful
   @MessagePattern('stripe_checkout_session_completed')
   async sendPaymentIntentConfirmationRequest( @Payload() msg:IPaymentIntentConfirmRequestPayload, @Ctx() ctx: RedisContext ) {
@@ -121,6 +127,25 @@ export class AppController {
 
         let {sessionId} = await this.dbService.getSessionIdFromTelegramFitIdMapSessionId(telegramFitIdMapSessionId);
 
+        const sessionData:Stripe.Checkout.Session = await stripe.checkout.sessions.retrieve(sessionId, {
+          expand: ['payment_intent', 'line_items', 'line_items.data.price.product'],
+        });
+
+        const paymentIntentId:string = (sessionData.payment_intent as Stripe.PaymentIntent).id; // using expand
+
+        const formulaMeal = sessionData.amount_total;
+        let customerData = {
+          email: sessionData.customer_details.email,
+          phone: sessionData.customer_details.phone,
+          fullName: sessionData.customer_details.name,
+          formulaMeal,
+          address: sessionData.shipping_details.address!.line1,
+          postalCode: sessionData.shipping_details.address!.postal_code,
+          stripeSessionId: sessionId,
+          stripePaymentIntentId: paymentIntentId, // using expand
+          decision: ""
+        }
+
         if (  response === "yes" ) {
           Logger.log(`callback_query : YES -> SessionId confirmed ${sessionId}`);
           // TODO : confirm payment intent ( must send to "manual" the payment mode in Stripe )
@@ -132,7 +157,8 @@ export class AppController {
           if ( await this.dbService.getDecisionHistory(sessionId) === null ) {
             await this.appService.sendMessagePaymentIntentResponse("Confirmed", sessionId);
             await this.dbService.saveDicisionHistory("Confirmed", sessionId);
-
+            customerData.decision = "yes";
+            await this.dbService.saveCustomer(customerData);
             this.client.emit('stuart_create_job', { sessionId });
           }
           
@@ -145,7 +171,35 @@ export class AppController {
           if ( await this.dbService.getDecisionHistory(sessionId) === null ) {
             await this.appService.sendMessagePaymentIntentResponse("Cancel", sessionId);
             await this.dbService.saveDicisionHistory("Cancel", sessionId);
+
+            customerData.decision = "no";
+            await this.dbService.saveCustomer(customerData);
+
+            const refund:Stripe.Response<Stripe.Refund> = await stripe.refunds.create({
+              payment_intent: paymentIntentId,
+            });
+
+            Logger.log(`Refund ${refund.status} for ${paymentIntentId}`)
+            await this.appService.sendMessageRefund(refund.status, sessionId, paymentIntentId);
+
+            
+      
+            // send SMS
+            const accountSid = process.env.TWILIO_ACCOUNT_SID as string;
+            const authToken = process.env.TWILIO_AUTH_TOKEN as string;
+            const client = require('twilio')(accountSid, authToken);
+            client.messages
+                .create({
+                    body: `⛔ Votre commande a été annulée, vous serez totalement remboursé sous peu.`,
+                    messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE as string,
+                    to: `${sessionData.customer_details.phone}`
+                })
+                .then(message => console.log(message.sid))
+                .catch(error => { console.log(error) });
+
           }
+
+
 
         } else {
           Logger.error("Unknown callback query data : ", req.body.callback_query);

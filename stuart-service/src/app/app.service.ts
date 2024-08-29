@@ -83,7 +83,8 @@ export class AppService {
               messagingServiceSid: process.env.TWILIO_MESSAGE_SERVICE as string,
               to: `${sessionData.customer_details.phone}`
           })
-          .then(message => console.log(message.sid));
+          .then(message => console.log(message.sid))
+          .catch(error => { console.log(error) });
 
 
 
