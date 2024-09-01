@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
@@ -20,6 +20,13 @@ export class AppController {
   ) {}
 
   
+  @Get("/health")
+  @HttpCode(200)
+  async getHealth() {
+    return "OK";
+  }
+
+
 
   // @Post webhook here : https://dashboard.stripe.com/test/webhooks/create?endpoint_location=local
 

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpCode } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import Stripe from 'stripe';
@@ -12,6 +12,13 @@ export class AppController {
   @Get("/products")
   async getProducts() {      
     return await this.appService.getProducts();
+  }
+
+
+  @Get("/health")
+  @HttpCode(200)
+  async getHealth() {
+    return "OK";
   }
 
 

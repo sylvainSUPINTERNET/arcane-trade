@@ -62,7 +62,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  await app.listen(port, () => {
+  await app.listen(port, "0.0.0.0", () => {
     Logger.log(
       `🚀 [TELEGRAM-SERVICE] Application is running on: http://localhost:${port}/${globalPrefix}`
     );

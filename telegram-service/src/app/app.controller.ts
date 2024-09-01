@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Inject, Logger, Post, Req, Res} from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Req, Res} from '@nestjs/common';
 import axios from "axios";
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
@@ -97,6 +97,13 @@ export class AppController {
 
 
     
+    @Get("/health")
+    @HttpCode(200)
+    async getHealth() {
+      return "OK";
+    }
+  
+  
   // We get event on stripe webhook, payment is "manual" so we need to confirm once the payment is successful
   @MessagePattern('stripe_checkout_session_completed')
   async sendPaymentIntentConfirmationRequest( @Payload() msg:IPaymentIntentConfirmRequestPayload, @Ctx() ctx: RedisContext ) {
