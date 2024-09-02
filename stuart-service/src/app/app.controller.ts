@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
@@ -22,6 +22,13 @@ export class AppController {
     private readonly appService: AppService,
     @Inject('REDIS_CLIENT') private readonly client: ClientProxy
   ) {}
+
+  @Get("/health")
+  @HttpCode(200)
+  async getHealth() {
+    return "OK";
+  }
+
 
   @MessagePattern('stuart_create_job')
   async createJob( @Payload() msg:{sessionId:string}, @Ctx() ctx: RedisContext ) {
