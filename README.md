@@ -38,6 +38,11 @@ export * from './lib/common-lib.service';
 docker build -f Dockerfile.nurish-api -t nurish-api .
 
 docker run -p 8888:8888 nurish-api
+
+docker tag sylvaindev/stripe-service sylvaindev/nurish-stripe-service:latest
+
+docker push docker.io/sylvaindev/stripe-service:latest
+
 ```
 
 
