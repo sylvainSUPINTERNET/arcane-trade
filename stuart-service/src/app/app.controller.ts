@@ -58,13 +58,14 @@ export class AppController {
   @Get("/test")
   @HttpCode(200)
   async test() {
-
     const job = await this.orderQueue.add('createJob', {
       id: uuidv7()
     },
     {
       delay: 3000 // 3 seconds
     });
+
+    console.log(job);
 
     return "OK";
   }
