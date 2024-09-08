@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import { CommonLibModule } from '@arcane-trade/common-lib';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -21,6 +22,15 @@ import { CommonLibModule } from '@arcane-trade/common-lib';
         },
       }
     ]),
+    BullModule.forRoot({
+      connection: {
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT as unknown as number
+      },
+    }),
+    BullModule.registerQueue({
+      name: 'order',
+    })
   ],
   controllers: [AppController],
   providers: [AppService],

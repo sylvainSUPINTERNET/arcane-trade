@@ -13,6 +13,8 @@ import {
   ApiResponse,
   HttpClient
 } from 'stuart-client-js'
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 
 
@@ -20,7 +22,8 @@ import {
 export class AppController {
   constructor(
     private readonly appService: AppService,
-    @Inject('REDIS_CLIENT') private readonly client: ClientProxy
+    @Inject('REDIS_CLIENT') private readonly client: ClientProxy,
+    @InjectQueue('order') private orderQueue: Queue
   ) {}
 
   @Get("/health")
@@ -49,6 +52,21 @@ export class AppController {
     res.status(HttpStatus.OK).json({
       "status": "received webhook event from stuart"
     });
+  }
+
+
+  @Get("/test")
+  @HttpCode(200)
+  async test() {
+
+    const job = await this.orderQueue.add('createJob', {
+      id: uuidv7()
+    },
+    {
+      delay: 3000 // 3 seconds
+    });
+
+    return "OK";
   }
 
   // TODO : uncomment this code but you should NOT listen for this event, but event from telegram on "YES" prompt
