@@ -5,8 +5,8 @@ import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule } from '@nestjs/config';
 import { CommonLibModule } from '@arcane-trade/common-lib';
-import { BullModule } from '@nestjs/bullmq';
-import { OrderConsumer } from './consumer/order.consumer';
+// import { BullModule } from '@nestjs/bullmq';
+// import { OrderConsumer } from './consumer/order.consumer';
 
 @Module({
   imports: [
@@ -23,19 +23,21 @@ import { OrderConsumer } from './consumer/order.consumer';
         },
       }
     ]),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT as unknown as number,
-        password: process.env.REDIS_PASSWORD,
-        tls: {}
-      },
-    }),
-    BullModule.registerQueue({
-      name: 'order',
-    })
+    // BullModule.forRoot({
+    //   connection: {
+    //     host: process.env.REDIS_HOST,
+    //     port: process.env.REDIS_PORT as unknown as number,
+    //     password: process.env.REDIS_PASSWORD,
+    //     tls: {}
+    //   },
+    // }),
+    // BullModule.registerQueue({
+    //   name: 'order',
+    // })
   ],
   controllers: [AppController],
-  providers: [AppService, OrderConsumer],
+  providers: [AppService,
+    //OrderConsumer
+  ],
 })
 export class AppModule {}
