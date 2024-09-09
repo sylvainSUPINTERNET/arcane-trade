@@ -23,7 +23,7 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     @Inject('REDIS_CLIENT') private readonly client: ClientProxy,
-    @InjectQueue('order') private orderQueue: Queue
+    // @InjectQueue('order') private orderQueue: Queue
   ) {}
 
   @Get("/health")
@@ -55,20 +55,20 @@ export class AppController {
   }
 
 
-  @Get("/test")
-  @HttpCode(200)
-  async test() {
-    const job = await this.orderQueue.add('createJob', {
-      id: uuidv7()
-    },
-    {
-      delay: 3000 // 3 seconds
-    });
+  // @Get("/test")
+  // @HttpCode(200)
+  // async test() {
+  //   const job = await this.orderQueue.add('createJob', {
+  //     id: uuidv7()
+  //   },
+  //   {
+  //     delay: 3000 // 3 seconds
+  //   });
 
-    console.log(job);
+  //   console.log(job);
 
-    return "OK";
-  }
+  //   return "OK";
+  // }
 
   // TODO : uncomment this code but you should NOT listen for this event, but event from telegram on "YES" prompt
   // @MessagePattern('webhook_payment_stripe_succeed')
