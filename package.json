@@ -43,6 +43,7 @@
     "@nestjs/microservices": "^10.3.10",
     "@nestjs/mongoose": "^10.0.10",
     "@nestjs/platform-express": "^10.0.2",
+    "amqplib": "^0.10.4",
     "axios": "^1.7.3",
     "body-parser": "^1.20.2",
     "bullmq": "^5.12.14",

@@ -21,7 +21,7 @@ export class RabbitmqModule {
                 {
                     provide: "CONFIG_OPTIONS",
                     useFactory: (configService: ConfigService) => {
-                        Logger.log('Rabbitmq instance created ' + configService.get<string>('RABBITMQ_URL'), 'Rabbitmq');
+                        //Logger.log('Rabbitmq instance created ' + configService.get<string>('RABBITMQ_URL'), 'Rabbitmq');
                         return (
                             options || {
                               url: configService.get<string>('RABBITMQ_URL'),

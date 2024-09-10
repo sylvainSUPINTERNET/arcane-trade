@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
 import { CommonLibService } from '@arcane-trade/common-lib';
 import Stripe from 'stripe';
+import { orderQueue, RabbitMqService } from '../rabbitmq/rabbitmq.service';
 
 
 /*
@@ -93,9 +94,26 @@ export class AppController {
   constructor(
     private readonly appService: AppService, 
     private readonly dbService: CommonLibService,
-    @Inject('REDIS_CLIENT') private readonly client: ClientProxy) {}
+    @Inject('REDIS_CLIENT') private readonly client: ClientProxy,
+    private readonly rabbitmqService: RabbitMqService) {}
 
 
+    @Get("/test")
+    @HttpCode(200)
+    async test() {
+
+
+      try {
+        const channel = await this.rabbitmqService.getChannel();    
+        channel.sendToQueue(orderQueue, Buffer.from('Hello from telegram-service'));
+        Logger.log("Message sent to Rabbitmq with success", 'Rabbitmq');
+      } catch( e ) {
+        Logger.error("Error while connecting to Rabbitmq", e);
+      }
+
+      return "OK";
+    }
+  
     
     @Get("/health")
     @HttpCode(200)
