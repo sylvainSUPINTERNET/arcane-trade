@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Inject, Logger, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Inject, Logger, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppService } from './app.service';
 import { ClientProxy, Ctx, MessagePattern, Payload, RedisContext } from '@nestjs/microservices';
@@ -54,6 +54,30 @@ export class AppController {
     });
   }
 
+
+  @Get("jobs/:jobId")
+  async getJob(@Param("jobId") qJobId:string, @Res() res: Response) {
+
+    if ( qJobId === undefined || qJobId === "" || qJobId === null ) {
+      return res.status(HttpStatus.BAD_REQUEST).json({
+        "status": "jobId is required"
+      });
+    }
+
+    const jobDetail = await this.appService.fetchJobDetail(qJobId);
+    console.log(jobDetail);
+    
+    if ( jobDetail.statusCode !== 200 ) {
+      return res.status(jobDetail.statusCode).json({
+        "status": "error"
+      });
+    }
+
+    return res.status(HttpStatus.OK).json({
+      jobDetail
+    });
+
+  }
 
   // @Get("/test")
   // @HttpCode(200)

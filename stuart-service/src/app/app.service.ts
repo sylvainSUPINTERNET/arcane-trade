@@ -18,8 +18,7 @@ export class AppService {
   constructor(@Inject('REDIS_CLIENT') private readonly client: ClientProxy) { }
 
 
-  async createNewJob(paymentIntentData: Stripe.PaymentIntent, sessionData: Stripe.Checkout.Session) {
-
+  private authStuartAPI() {
     let environment;
     if ( process.env.STUART_ENV === 'production' ) {
       environment = Environment.PRODUCTION();
@@ -30,8 +29,14 @@ export class AppService {
     const api_client_id = `${process.env.STUART_ID_CLIENT}` // can be found here: https://admin-sandbox.stuart.com/client/api
     const api_client_secret = `${process.env.STUART_SECRET}` // can be found here: https://admin-sandbox.stuart.com/client/api
     const auth = new Authenticator(environment, api_client_id, api_client_secret)
+    return auth;
+  }
 
-    const httpClient = new HttpClient(auth); 
+
+  async createNewJob(paymentIntentData: Stripe.PaymentIntent, sessionData: Stripe.Checkout.Session) {
+
+
+    const httpClient = new HttpClient(this.authStuartAPI()); 
 
     console.log("STUART SESSION DATA : " , sessionData)
     console.log("STUART PAYMENT DATA : " , paymentIntentData)
@@ -97,6 +102,14 @@ export class AppService {
     // .catch((error) => { console.log(error) })
 
     
+  }
+
+
+
+  async fetchJobDetail(jobId:string) {
+    const httpClient = new HttpClient(this.authStuartAPI()); 
+    const resp = await httpClient.performGet(`/v2/jobs/${jobId}`);
+    return resp;
   }
 
 }
