@@ -101,8 +101,6 @@ export class AppController {
     @Get("/test")
     @HttpCode(200)
     async test() {
-
-
       try {
         const channel = await this.rabbitmqService.getChannel();    
         channel.sendToQueue(orderQueue, Buffer.from('Hello from telegram-service'));
