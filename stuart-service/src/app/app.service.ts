@@ -73,6 +73,7 @@ export class AppService {
       }
     }
     
+    // TODO c'est quoi ctte merde ?
     httpClient.performPost('/v2/jobs', JSON.stringify(job))
     .then((apiResponse) => { 
       const { body } = apiResponse
@@ -103,14 +104,14 @@ export class AppService {
 
     
   }
-
-
-
+ 
   async fetchJobDetail(jobId:string) {
     const httpClient = new HttpClient(this.authStuartAPI()); 
     const resp = await httpClient.performGet(`/v2/jobs/${jobId}`);
     return resp;
   }
+
+
 
 }
 

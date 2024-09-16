@@ -65,7 +65,6 @@ export class AppController {
     }
 
     const jobDetail = await this.appService.fetchJobDetail(qJobId);
-    console.log(jobDetail);
     
     if ( jobDetail.statusCode !== 200 ) {
       return res.status(jobDetail.statusCode).json({
@@ -74,10 +73,15 @@ export class AppController {
     }
 
     return res.status(HttpStatus.OK).json({
-      jobDetail
+      jobDetail: jobDetail.body
     });
 
   }
+
+
+
+
+
 
   // @Get("/test")
   // @HttpCode(200)
